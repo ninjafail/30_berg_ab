@@ -1,6 +1,8 @@
 from Dice import DiceCup
+from abc import ABC, abstractmethod
 
-class Player:
+
+class Player(ABC):
     def __init__(self, name):
         self.name = name
         self.life_points = 30
@@ -54,6 +56,15 @@ class Player:
         self.take_out(to_take_out)
         return attack_amount * factor
 
+    """Defines which indexes should be taken out from the roll and returns them
+    
+    :param roll the list of results that got rolled in this turn
+    :returns list of indexes from the argument roll
+    """
+    @abstractmethod
+    def strategy(self, roll: list[int]) -> list[int]:
+        pass
+
     def take_turn(self) -> int:
         self.reset()
         while True:
@@ -63,14 +74,7 @@ class Player:
             err = True
             while err:
                 try:
-                    print(f"{self.name} rolled: ")
-                    print("\t", end='')
-                    for j, r in enumerate(roll):
-                        print(f"{chr(ord('a') + j)}: {r}, ", end='')
-                    print("\nChoose the dice you want to take out by typing the letters and press enter to submit:")
-                    letters = input()
-                    numbers = [ord(l) - ord('a') for l in letters]
-                    self.take_out(numbers)
+                    self.take_out(self.strategy(roll))
                     err = False
                 except Exception as e:
                     print(e)
@@ -85,3 +89,25 @@ class Player:
             last_damage = self.attack_once(factor)
             attack_damage += last_damage
         return attack_damage
+
+
+class HumanPlayer(Player):
+    def strategy(self, roll: list[int]) -> list[int]:
+        print(f"{self.name} rolled: ")
+        print("\t", end='')
+        for j, r in enumerate(roll):
+            print(f"{chr(ord('a') + j)}: {r}, ", end='')
+        print("\nChoose the dice you want to take out by typing the letters and press enter to submit:")
+        letters = input()
+        return [ord(l) - ord('a') for l in letters]
+
+
+class HighestOrSixAi(Player):
+    def strategy(self, roll: list[int]) -> list[int]:
+        res = []
+        for i, r in roll:
+            if r == 6:
+                res.append(i)
+        if not res:
+            res.append(max(roll))
+        return res
