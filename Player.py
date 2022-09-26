@@ -108,29 +108,3 @@ class HumanPlayer(Player):
         return [ord(l) - ord('a') for l in letters]
 
 
-class AiHighestOrSix(Player):
-    def __init__(self, name="AiHighestOrSix"):
-        super().__init__(name)
-
-    def strategy(self, roll: list[int]) -> list[int]:
-        res = []
-        for i, r in enumerate(roll):
-            if r == 6:
-                res.append(i)
-        if not res:
-            res.append(roll.index(max(roll)))
-        return res
-
-
-class AiFiveOrSix(Player):
-    def __init__(self, name="AiFiveOrSix"):
-        super().__init__(name)
-
-    def strategy(self, roll: list[int]) -> list[int]:
-        res = []
-        for i, r in enumerate(roll):
-            if r == 5 or r == 6:
-                res.append(i)
-        if not res:
-            res.append(roll.index(max(roll)))
-        return res

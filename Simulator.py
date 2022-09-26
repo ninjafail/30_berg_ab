@@ -1,11 +1,11 @@
 from Game import Game
-from Player import Player, AiHighestOrSix
+from Strategies import Strategy
 import pandas as pd
 import matplotlib.pyplot as plt
 
 
 class Simulator:
-    def __init__(self, strategy: Player):
+    def __init__(self, strategy: Strategy):
         self.strategy = strategy
         self.turn_performance = []
         self.winner_list = []
@@ -29,7 +29,7 @@ class Simulator:
         plt.figtext(0.5, 0.01, f"Variance = {series.var()}, Median = {series.median()}, Mean = {series.mean()}", size=12, ha="center")
         plt.show()
 
-    def cmp_with_strategy(self, enemy_strategy: Player, iterations: int):
+    def cmp_with_strategy(self, enemy_strategy: Strategy, iterations: int):
         winner_list = []
         for _ in range(iterations):
             game = Game([self.strategy, enemy_strategy], should_print=False)
@@ -37,7 +37,7 @@ class Simulator:
         self.winner_list = winner_list
         return self.winner_list
 
-    def plot_cmp_with_strategy(self, enemy_strategy: Player = None, iterations=10000):
+    def plot_cmp_with_strategy(self, enemy_strategy: Strategy = None, iterations=10000):
         if not self.winner_list:
             assert enemy_strategy
             self.cmp_with_strategy(enemy_strategy, iterations)
