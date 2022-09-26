@@ -27,6 +27,9 @@ class Game:
         for i in range(len(self.alivePlayers)):
             self.remove_player_if_dead(i)
 
+    def is_game_finished(self):
+        return len(self.alivePlayers) <= 1
+
     def play(self):
         self.print("Welcome to 30 Berg ab. A german dice game that breaks relationships and separates families. This game is totally based on skill. The skill to roll good. Have fun! \n")
 
@@ -35,9 +38,10 @@ class Game:
             self.print(f"{player.name}, ", end="")
         self.print("let's go ... \n")
 
-        while len(self.alivePlayers) > 1:
+        while not self.is_game_finished():
             for i, player in enumerate(self.alivePlayers):
-                self.check_dead_players()
+                if self.is_game_finished():
+                    break
                 self.print(f"It is {player.name}'s turn!\nYou have {player.life_points} life points.")
                 self.print(f"The others have:")
                 for p in self.alivePlayers:
@@ -55,7 +59,7 @@ class Game:
                     next_player_index = (i + 1) % len(self.alivePlayers)
                     next_player = self.alivePlayers[next_player_index]
                     self.print(f"{player_end_roll}. Nice finally some damage.")
-                    damage = player.roll_damage(player_end_roll - 30)
+                    damage = player.roll_damage(player_end_roll - 30, should_print=self.should_print)
                     self.print(
                         f"You damage {next_player.name} with {damage} points, putting him at {next_player.life_points - damage} life points.")
                     self.damage_player(next_player_index, damage)
@@ -64,7 +68,10 @@ class Game:
 
         self.print("Nice Game!")
         self.print(f"Players {self.deadPlayers[0].name}", end="")
-        for player in self.deadPlayers[1:]:
-            self.print(f", {player.name}", end="")
+        if len(self.deadPlayers) > 1:
+            for player in self.deadPlayers[1:]:
+                self.print(f", {player.name}", end="")
         self.print(
             f" died and lost. All losers, except for {self.alivePlayers[0].name}. The only one with the guts to win. Good job!")
+
+        return self.alivePlayers[0]

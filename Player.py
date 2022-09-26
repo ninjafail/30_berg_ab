@@ -39,13 +39,14 @@ class Player(ABC):
         self.rolled = False
         self.results = []
 
-    def attack_once(self, factor: int) -> int:
+    def attack_once(self, factor: int, should_print=True) -> int:
         assert factor in range(1, 7)
 
         if self.dice_cup.is_empty():
             self.reset()
         results = self.roll()
-        print(f"Your damage roll: {results}")
+        if should_print:
+            print(f"Your damage roll: {results}")
         attack_amount = results.count(factor)
         to_take_out = [*range(attack_amount)]
 
@@ -77,12 +78,12 @@ class Player(ABC):
 
         return self.get_end_result()
 
-    def roll_damage(self, factor: int) -> int:
+    def roll_damage(self, factor: int, should_print=True) -> int:
         self.reset()
-        last_damage = self.attack_once(factor)
+        last_damage = self.attack_once(factor, should_print)
         attack_damage = last_damage
         while last_damage != 0 or self.dice_cup.is_empty():
-            last_damage = self.attack_once(factor)
+            last_damage = self.attack_once(factor, should_print)
             attack_damage += last_damage
         return attack_damage
 
@@ -108,10 +109,27 @@ class HumanPlayer(Player):
 
 
 class AiHighestOrSix(Player):
+    def __init__(self, name="AiHighestOrSix"):
+        super().__init__(name)
+
     def strategy(self, roll: list[int]) -> list[int]:
         res = []
         for i, r in enumerate(roll):
             if r == 6:
+                res.append(i)
+        if not res:
+            res.append(roll.index(max(roll)))
+        return res
+
+
+class AiFiveOrSix(Player):
+    def __init__(self, name="AiFiveOrSix"):
+        super().__init__(name)
+
+    def strategy(self, roll: list[int]) -> list[int]:
+        res = []
+        for i, r in enumerate(roll):
+            if r == 5 or r == 6:
                 res.append(i)
         if not res:
             res.append(roll.index(max(roll)))
