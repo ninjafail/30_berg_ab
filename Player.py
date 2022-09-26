@@ -56,15 +56,6 @@ class Player(ABC):
         self.take_out(to_take_out)
         return attack_amount * factor
 
-    """Defines which indexes should be taken out from the roll and returns them
-    
-    :param roll the list of results that got rolled in this turn
-    :returns list of indexes from the argument roll
-    """
-    @abstractmethod
-    def strategy(self, roll: list[int]) -> list[int]:
-        pass
-
     def take_turn(self) -> int:
         self.reset()
         while True:
@@ -72,13 +63,18 @@ class Player(ABC):
                 break
             roll = self.roll()
             err = True
+            err_counter = 0
             while err:
                 try:
                     self.take_out(self.strategy(roll))
                     err = False
-                except Exception as e:
-                    print(e)
+                except IndexError as e:
                     err = True
+                    print(e)
+                    err_counter += 1
+                    if err_counter > 10:
+                        break
+
         return self.get_end_result()
 
     def roll_damage(self, factor: int) -> int:
@@ -89,6 +85,15 @@ class Player(ABC):
             last_damage = self.attack_once(factor)
             attack_damage += last_damage
         return attack_damage
+
+    """Defines which indexes should be taken out from the roll and returns them
+
+    :param roll the list of results that got rolled in this turn
+    :returns list of indexes from the argument roll
+    """
+    @abstractmethod
+    def strategy(self, roll: list[int]) -> list[int]:
+        pass
 
 
 class HumanPlayer(Player):
@@ -102,12 +107,12 @@ class HumanPlayer(Player):
         return [ord(l) - ord('a') for l in letters]
 
 
-class HighestOrSixAi(Player):
+class AiHighestOrSix(Player):
     def strategy(self, roll: list[int]) -> list[int]:
         res = []
-        for i, r in roll:
+        for i, r in enumerate(roll):
             if r == 6:
                 res.append(i)
         if not res:
-            res.append(max(roll))
+            res.append(roll.index(max(roll)))
         return res

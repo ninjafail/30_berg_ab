@@ -1,15 +1,15 @@
-from Player import HumanPlayer
+from Player import Player
 
 
 class Game:
-    def __init__(self, players: list[HumanPlayer], should_print: bool = True):
-        self.alivePlayers: list[HumanPlayer] = players
-        self.deadPlayers: list[HumanPlayer] = []
+    def __init__(self, players: list[Player], should_print: bool = True):
+        self.alivePlayers: list[Player] = players
+        self.deadPlayers: list[Player] = []
         self.should_print = should_print
 
-    def print(self, *args):
+    def print(self, *values, sep=' ', end='\n'):
         if self.should_print:
-            print(*args)
+            print(*values, sep=sep, end=end)
 
     def remove_player_if_dead(self, index):
         if not self.alivePlayers[index].is_alive():
@@ -44,17 +44,17 @@ class Game:
                     self.print(f"\t{p.name}: {p.life_points}")
 
                 player_end_roll = player.take_turn()
-                self.print(f"And {player.name} rolled a ... ")
+                self.print(f"And {player.name} rolled a ... ", end='')
                 if player_end_roll == 30:
-                    self.print(f"... whopping {player_end_roll}, wow ...\n\tnothing happens.")
+                    self.print(f"whopping {player_end_roll}, wow  . . .  nothing happens.")
                 elif player_end_roll < 30:
                     self.print(
-                        f"... {player_end_roll} ... Can't even roll above 30, smh. In confusion you even damaged yourself, putting you at {player.life_points - (30 - player_end_roll)} lifepoints.")
+                        f"{player_end_roll} ... Can't even roll above 30, smh. In confusion you even damaged yourself, putting you at {player.life_points - (30 - player_end_roll)} lifepoints.")
                     self.damage_player(i, 30 - player_end_roll)
                 elif player_end_roll > 30:
                     next_player_index = (i + 1) % len(self.alivePlayers)
                     next_player = self.alivePlayers[next_player_index]
-                    self.print(f"... {player_end_roll}. Nice finally some damage.")
+                    self.print(f"{player_end_roll}. Nice finally some damage.")
                     damage = player.roll_damage(player_end_roll - 30)
                     self.print(
                         f"You damage {next_player.name} with {damage} points, putting him at {next_player.life_points - damage} life points.")

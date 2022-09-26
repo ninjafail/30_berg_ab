@@ -27,7 +27,11 @@ class DiceCup:
         return f"DiceCup({self.dice})"
 
     def take_out(self, indices: list[int]) -> list[Die]:
-        assert indices
+        if not indices:
+            raise IndexError("Please enter valid values.")
+        for index in indices:
+            if index not in range(len(self.dice)):
+                raise IndexError("Please enter a valid value that is shown as an option.")
 
         return_dice: list[Die] = []
         indices: list[int] = list(dict.fromkeys(indices))
